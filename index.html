@@ -1,0 +1,383 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- jsPDF AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <title>SiteRegistro - Controle de Produtos</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        /* CABEÇALHO */
+        header {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 25px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        main {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        /* CARDS */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            color: #0f172a;
+        }
+
+        .card-description {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        /* FORMULÁRIO */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo label {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #334155;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+            background: #fff;
+        }
+
+        .campo input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .botao-registrar {
+            margin-top: 20px;
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .botao-registrar:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        /* LISTA */
+        .titulo-lista {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .contador {
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        #listaProdutos {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #listaProdutos li {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        #listaProdutos li:hover {
+            border-color: #bfdbfe;
+            background: #eff6ff;
+        }
+
+        /* BOTÕES DE AÇÃO */
+        .acoes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-limpar {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-limpar:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-excluir {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-excluir:hover {
+            background: #fecaca;
+        }
+
+        .btn-pdf {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background: #15803d;
+        }
+
+        /* RODAPÉ */
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            padding: 25px 20px;
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 700px) {
+
+            header h1 {
+                font-size: 23px;
+            }
+
+            main {
+                margin-top: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .acoes {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+    <header>
+        <div class="header-container">
+            <h1>📦 SiteRegistro</h1>
+            <p>Controle e registro de produtos</p>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main>
+
+        <!-- CADASTRO -->
+        <section class="card">
+
+            <h2>Registrar produto</h2>
+
+            <p class="card-description">
+                Preencha as informações abaixo para cadastrar um novo produto.
+            </p>
+
+            <div class="form-grid">
+
+                <div class="campo">
+                    <label for="nome">Nome do produto</label>
+                    <input
+                        type="text"
+                        id="nome"
+                        placeholder="Ex.: Arroz 5kg"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="codigo">Código do produto</label>
+                    <input
+                        type="text"
+                        id="codigo"
+                        placeholder="Ex.: PROD001"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="dataValidade">Data de validade</label>
+                    <input
+                        type="text"
+                        id="dataValidade"
+                        placeholder="DD/MM/AAAA"
+                        maxlength="10"
+                        oninput="formatarData(this)"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="dataProduto">Data do produto</label>
+                    <input
+                        type="text"
+                        id="dataProduto"
+                        placeholder="DD/MM/AAAA"
+                        maxlength="10"
+                        oninput="formatarData(this)"
+                    >
+                </div>
+
+            </div>
+
+            <button
+                class="botao-registrar"
+                onclick="registrarProduto()"
+            >
+                + Registrar Produto
+            </button>
+
+        </section>
+
+        <!-- PRODUTOS -->
+        <section class="card">
+
+            <div class="titulo-lista">
+                <div>
+                    <h2>Produtos registrados</h2>
+                    <p class="card-description">
+                        Produtos cadastrados no sistema.
+                    </p>
+                </div>
+
+                <span class="contador" id="contadorProdutos">
+                    0 produtos
+                </span>
+            </div>
+
+            <ul id="listaProdutos"></ul>
+
+            <!-- AÇÕES -->
+            <div class="acoes">
+
+                <button
+                    class="btn btn-excluir"
+                    onclick="excluirProduto()"
+                >
+                    🗑️ Excluir produto
+                </button>
+
+                <button
+                    class="btn btn-pdf"
+                    onclick="gerarPDF()"
+                >
+                    📄 Gerar PDF
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        SiteRegistro © 2026 — Sistema de controle de produtos
+    </footer>
+
+    <!-- SEU JAVASCRIPT -->
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
+```
