@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiteRegistro</title>
+</head>
+
+<body>
+    <h1>Bem vindo ao site de registro</h1>
+    <p>digite suas informações</p>
+    <input type="text" id="nome" placeholder="nome do produto"><br>
+    <input type="text" id="codigo" placeholder="código do produto"><br>
+    <input type="text" id="peso" placeholder="peso do produto"><br>
+    <input type="text" id="preco" placeholder="preço do produto"><br>
+    <button onclick="registrarProduto()">Registrar Produto</button>
+    <h2>Produtos Registrados</h2>
+    <ul id="listaProdutos"></ul>
+    <button onclick="limparCampos()">Limpar Campos</button>
+    <button onclick="excluirProduto()">Excluir Produto</button>
+    <button onclick="gerarPDF()">Gerar PDF</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        function registrarProduto() {
+            const nome = document.getElementById('nome').value;
+            const codigo = document.getElementById('codigo').value;
+            const peso = document.getElementById('peso').value;
+            const preco = document.getElementById('preco').value;
+
+            if (nome && codigo && peso && preco) {
+                const produto = {
+                    nome: nome,
+                    codigo: codigo,
+                    peso: peso,
+                    preco: preco
+                };
+
+                let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+                produtos.push(produto);
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+
+                atualizarListaProdutos();
+                limparCampos();
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        }
+
+        function atualizarListaProdutos() {
+            const listaProdutos = document.getElementById('listaProdutos');
+            listaProdutos.innerHTML = '';
+
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            produtos.forEach((produto, index) => {
+                const li = document.createElement('li');
+                li.textContent = `Nome: ${produto.nome}, Código: ${produto.codigo}, Peso: ${produto.peso}, Preço: ${produto.preco}`;
+                listaProdutos.appendChild(li);
+            });
+        }
+
+        function limparCampos() {
+            document.getElementById('nome').value = '';
+            document.getElementById('codigo').value = '';
+            document.getElementById('peso').value = '';
+            document.getElementById('preco').value = '';
+        }
+
+        function excluirProduto() {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            if (produtos.length > 0) {
+                produtos.pop();
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+                atualizarListaProdutos();
+            }
+        }
+
+        function gerarPDF() {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+
+            if (produtos.length === 0) {
+                alert('Não há produtos para gerar o PDF.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            let y = 20;
+
+            doc.setFontSize(18);
+            doc.text('Produtos Registrados', 20, y);
+
+            y += 15;
+
+            produtos.forEach((produto, index) => {
+                // Verifica se precisa criar uma nova página
+                if (y > 260) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                doc.setFontSize(12);
+                doc.text(`Produto ${index + 1}:`, 20, y);
+                y += 8;
+
+                doc.text(`Nome: ${produto.nome || ''}`, 25, y);
+                y += 7;
+
+                doc.text(`Código: ${produto.codigo || ''}`, 25, y);
+                y += 7;
+
+                doc.text(`Peso: ${produto.peso || ''}`, 25, y);
+                y += 7;
+
+                doc.text(`Preço: ${produto.preco || ''}`, 25, y);
+                y += 12;
+            });
+
+            doc.save('produtos.pdf');
+        }
+
+
+        // Atualiza a lista de produtos ao carregar a página
+        window.onload = atualizarListaProdutos;
+    </script>
+</body>
+
+</html>
